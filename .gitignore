@@ -1,0 +1,6 @@
+# Executables from g++ -o
+*
+# Keep source and config files
+!*.cpp
+!CMakeLists.txt
+!.gitignore
