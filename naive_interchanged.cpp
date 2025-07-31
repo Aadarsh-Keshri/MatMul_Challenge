@@ -2,13 +2,9 @@
 #include <memory>
 #include <cstdlib>
 #include <random>
+#include <algorithm>
 
-// Function to perform naive matrix multiplication with interchanged loops (ikj order)
-void matrixMultiplyInterchangedLoops(const double* A, const double* B, double* C, int n) {
-    // Initialize result matrix C to zero
-    for (int i = 0; i < n * n; ++i) {
-        C[i] = 0.0;
-    }
+void matrixMultiplyInterchangedLoops(const double* A, const double* B, double* C, const int n) {
     // Perform matrix multiplication with ikj loop order
     for (int i = 0; i < n; ++i) {
         for (int k = 0; k < n; ++k) {
@@ -29,7 +25,7 @@ void initializeMatrix(double* matrix, int n) {
     }
 }
 
-// Benchmark function for interchanged matrix multiplication
+// Benchmark function for loop reordered matrix multiplication
 static void BM_NaiveMatrixMultiplyInterchanged(benchmark::State& state) {
     const int n = state.range(0);
     // Allocate aligned memory for matrices A, B, and C (16-byte alignment for vectorization/cache)
@@ -49,12 +45,13 @@ static void BM_NaiveMatrixMultiplyInterchanged(benchmark::State& state) {
 
     // Benchmark loop
     for (auto _ : state) {
+        std::fill_n(C.get(), n * n, 0.0); // Zero C before multiplication
         matrixMultiplyInterchangedLoops(A.get(), B.get(), C.get(), n);
     }
 
-    // Report operations (2 * n^3 for multiply-add pairs)
+    // Report operations
     state.SetItemsProcessed(static_cast<int64_t>(2) * n * n * n * state.iterations());
-    // Report memory usage in kilobytes (3 matrices * n * n * sizeof(double) / 1024)
+    // Report memory usage in kilobytes
     state.counters["MemoryKB"] = (3.0 * n * n * sizeof(double)) / 1024.0;
 }
 
@@ -65,5 +62,4 @@ BENCHMARK(BM_NaiveMatrixMultiplyInterchanged)
         ->Arg(1680)
         ->Unit(benchmark::kMicrosecond);
 
-// Use Google Benchmark's main function
 BENCHMARK_MAIN();

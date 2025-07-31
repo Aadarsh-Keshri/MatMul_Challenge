@@ -4,13 +4,8 @@
 #include <random>
 #include <algorithm>
 
-// Function to perform tiled matrix multiplication using 1D arrays
-void matrixMultiplyLoopInterchangedTiling(const double* A, const double* B, double* C, int n, int tile_size) {
-    // Initialize result matrix C to zero
-    for (int i = 0; i < n * n; ++i) {
-        C[i] = 0.0;
-    }
-    // Perform tiled matrix multiplication
+void matrixMultiplyLoopInterchangedTiling(const double* A, const double* B, double* C, const int n, const int tile_size) {
+    // Perform tiled matrix multiplication with iikkjj and ikj loop orders
     for (int ii = 0; ii < n; ii += tile_size) {
         for (int kk = 0; kk < n; kk += tile_size) {
             for (int jj = 0; jj < n; jj += tile_size) {
@@ -36,10 +31,10 @@ void initializeMatrix(double* matrix, int n) {
     }
 }
 
-// Benchmark function for tiled matrix multiplication
+// Benchmark function for tiled with loop reorders matrix multiplication
 static void BM_MatrixMultiplyLoopInterchangedTiling(benchmark::State& state) {
     const int n = state.range(0);
-    const int tile_size = 64; // Fixed tile size, consistent with original
+    const int tile_size = 64; // Tile size for the blocks
     // Allocate aligned memory for matrices A, B, and C (16-byte alignment for vectorization/cache)
     auto A = std::unique_ptr<double[]>(static_cast<double*>(aligned_alloc(16, n * n * sizeof(double))));
     auto B = std::unique_ptr<double[]>(static_cast<double*>(aligned_alloc(16, n * n * sizeof(double))));
@@ -57,12 +52,13 @@ static void BM_MatrixMultiplyLoopInterchangedTiling(benchmark::State& state) {
 
     // Benchmark loop
     for (auto _ : state) {
+        std::fill_n(C.get(), n * n, 0.0); // Zero C before multiplication
         matrixMultiplyLoopInterchangedTiling(A.get(), B.get(), C.get(), n, tile_size);
     }
 
-    // Report operations (2 * n^3 for multiply-add pairs)
+    // Report operations
     state.SetItemsProcessed(static_cast<int64_t>(2) * n * n * n * state.iterations());
-    // Report memory usage in kilobytes (3 matrices * n * n * sizeof(double) / 1024)
+    // Report memory usage in kilobytes
     state.counters["MemoryKB"] = (3.0 * n * n * sizeof(double)) / 1024.0;
 }
 
@@ -73,5 +69,4 @@ BENCHMARK(BM_MatrixMultiplyLoopInterchangedTiling)
         ->Arg(1680)
         ->Unit(benchmark::kMicrosecond);
 
-// Use Google Benchmark's main function
 BENCHMARK_MAIN();
