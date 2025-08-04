@@ -4,3 +4,4 @@
 !*.cpp
 !CMakeLists.txt
 !.gitignore
+!README.markdown

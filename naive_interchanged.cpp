@@ -48,11 +48,6 @@ static void BM_NaiveMatrixMultiplyInterchanged(benchmark::State& state) {
         std::fill_n(C.get(), n * n, 0.0); // Zero C before multiplication
         matrixMultiplyInterchangedLoops(A.get(), B.get(), C.get(), n);
     }
-
-    // Report operations
-    state.SetItemsProcessed(static_cast<int64_t>(2) * n * n * n * state.iterations());
-    // Report memory usage in kilobytes
-    state.counters["MemoryKB"] = (3.0 * n * n * sizeof(double)) / 1024.0;
 }
 
 // Register benchmarks for matrix sizes 240, 1200, and 1680
