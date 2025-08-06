@@ -32,7 +32,16 @@ I have used the `perf` tool to gain insights on the compiled C++ program's under
   g++ -O2 -march=native loop_tiling.cpp -lbenchmark -pthread -o loop_tiling_O2
   g++ -O2 -march=native -ftree-vectorize loop_tiling.cpp -lbenchmark -pthread -o loop_tiling_O2_vec
   ```
-
+- **Running the programs:**
+  ```bash
+  ./loop_tiling_O2
+  ./loop_tiling_O2_vec
+  ```
+- The perf tool has many profiling options. I have only used `record`/`report` for this challenge:
+  ```bash
+  perf record ./loop_tiling_O2 #Captures performance data while running the program.
+  perf report #Analyzes and displays the recorded performance data
+  ```
 
 ## Cache-Aware Methods Implemented
 
