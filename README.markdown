@@ -1,10 +1,18 @@
 # Coding Challenge Solution
 
+## Table of Contents
+
+- [Development and Testing Environment](#development-and-testing-environment)
+- [Project Setup](#project-setup)
+- [Cache-Aware Methods Implemented](#cache-aware-methods-implemented)
+- [Benchmark Results and Assembly Codes](#benchmark-results-and-assembly-codes)
+- [Observations](#observations)
+
 ## Development and Testing Environment
 
 The results in this submission were collected on my laptop running `Ubuntu 24.04.2 LTS on WSL2`(GNU/Linux 6.6.87.2-microsoft-standard-WSL2 x86_64) with AMD Ryzen 7 5800HS processor(`Zen 3 Architecture`, `8 cores`, `16 threads`).
 
-I have used the `g++` compiler. I used `-O2 -march=znver3` flag for scalar optimization and occasionally added `-ftree-vectorize` flag for vectorized optimization. I have used -march=znver3 because of my processor's architecture. `-march=native` can be used alternatively if the user's processor architecture differs.
+I have used the `g++` compiler. I used `-O2 -march=znver3` flag for non-vectorized optimization and occasionally added `-ftree-vectorize` flag for vectorized optimization. I have used -march=znver3 because of my processor's architecture. `-march=native` can be used alternatively if the user's processor architecture differs.
 
 The benchmarks in this repository were written using `Google Benchmark` library. For simplicity, all benchmarks assume square matrix of dimension N x N, where N is 240, 1200, and 1680.
 
@@ -49,13 +57,13 @@ This section describes the matrix multiplication implementations and their cache
 **Note**:
 - All implementations use 1D arrays with 16-byte aligned memory (`aligned_alloc`) for cache and vectorization efficiency.  I chose this approach in every implementation because flattening 2D matrices into 1D arrays is more about how they are represented in memory than about the logic of matrix multiplication.
 
-## Benchmark Results and Assembly Analysis
+## Benchmark Results and Assembly Codes
 
-This section presents benchmark results, assembly analysis, and performance insights.
+This section presents benchmark results and assembly codes of the respective programs.
 
 1. `naive.cpp`:
     - **Benchmark Result**:
-        - Only Scalar Optimization:
+        - Non-vectorized Optimization:
           ```bash
           ----------------------------------------------------------------------
           Benchmark                            Time             CPU   Iterations
@@ -64,7 +72,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_NaiveMatrixMultiply/1200    3499797 us      3685234 us            1
           BM_NaiveMatrixMultiply/1680   38709784 us     40778839 us            1
           ```
-        - Adding Vectorized Optimization:
+        - Vectorized Optimization:
           ```bash
           ----------------------------------------------------------------------
           Benchmark                            Time             CPU   Iterations
@@ -74,7 +82,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_NaiveMatrixMultiply/1680   35434404 us     37306267 us            1
           ```
     - **Assembly Code**:
-        - For Scalar Code:
+        - For Non-vectorized  Code:
           ```asm
            Samples: 165K of event 'cycles:Pu', 4000 Hz, Event count (approx.): 65182091607                                                                                                     
            matrixMultiply(double const*, double const*, double*, int)  /mnt/d/open_source/matmul_challenge/naive_O2 [Percent: local period]                                                    
@@ -111,7 +119,7 @@ This section presents benchmark results, assembly analysis, and performance insi
 
 2. `naive_interchanged.cpp`:
     - **Benchmark Result**:
-        - Only Scalar Optimization:
+        - Non-vectorized Optimization:
           ```bash
           ----------------------------------------------------------------------------------
           Benchmark                                        Time             CPU   Iterations
@@ -120,7 +128,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_NaiveMatrixMultiplyInterchanged/1200    1716592 us      1801518 us            1
           BM_NaiveMatrixMultiplyInterchanged/1680    5085938 us      5338501 us            1
           ```
-        - Adding Vectorized Optimization:
+        - Vectorized Optimization:
           ```bash
           ----------------------------------------------------------------------------------
           Benchmark                                        Time             CPU   Iterations
@@ -130,7 +138,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_NaiveMatrixMultiplyInterchanged/1680    2279934 us      2379931 us            1
           ```
     - **Assembly Code**:
-        - For Scalar Code:
+        - For Non-vectorized  Code:
           ```asm
            Samples: 12K of event 'cycles:Pu', 1500 Hz, Event count (approx.): 13296216903                                                                                                      
            matrixMultiplyInterchangedLoops(double const*, double const*, double*, int)  /mnt/d/open_source/matmul_challenge/naive_interchanged_O2 [Percent: local period]                      
@@ -167,7 +175,7 @@ This section presents benchmark results, assembly analysis, and performance insi
 
 3. `loop_tiling.cpp`:
     - **Benchmark Result**:
-        - Only Scalar Optimization:
+        - Non-vectorized Optimization:
           ```bash
           ---------------------------------------------------------------------------
           Benchmark                                 Time             CPU   Iterations
@@ -176,7 +184,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_MatrixMultiplyLoopTiling/1200     930696 us       947384 us            1
           BM_MatrixMultiplyLoopTiling/1680    2567038 us      2613017 us            1
           ```
-        - Adding Vectorized Optimization:
+        - Vectorized Optimization:
           ```bash
           ---------------------------------------------------------------------------
           Benchmark                                 Time             CPU   Iterations
@@ -186,7 +194,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_MatrixMultiplyLoopTiling/1680    2408271 us      2605673 us            1
           ```
     - **Assembly Code**:
-        - For Scalar Code:
+        - For Non-vectorized  Code:
           ```asm
            Samples: 6K of event 'cycles:Pu', 1500 Hz, Event count (approx.): 17063624376                                                                                                       
            matrixMultiplyLoopTiling(double const*, double const*, double*, int, int)  /mnt/d/open_source/matmul_challenge/loop_tiling_O2 [Percent: local period]                               
@@ -223,7 +231,7 @@ This section presents benchmark results, assembly analysis, and performance insi
 
 4. `loop_tiling_interchanged.cpp`:
     - **Benchmark Result**:
-        - Only Scalar Optimization:
+        - Non-vectorized Optimization:
           ```bash
           ---------------------------------------------------------------------------------------
           Benchmark                                             Time             CPU   Iterations
@@ -232,7 +240,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_MatrixMultiplyLoopInterchangedTiling/1200     713246 us       748021 us            1
           BM_MatrixMultiplyLoopInterchangedTiling/1680    1962846 us      2058364 us            1
           ```
-        - Adding Vectorized Optimization:
+        - Vectorized Optimization:
           ```bash
           ---------------------------------------------------------------------------------------
           Benchmark                                             Time             CPU   Iterations
@@ -242,7 +250,7 @@ This section presents benchmark results, assembly analysis, and performance insi
           BM_MatrixMultiplyLoopInterchangedTiling/1680     965589 us      1018443 us            1
           ```
     - **Assembly Code**:
-        - For Scalar Code:
+        - For Non-vectorized  Code:
           ```asm
            Samples: 5K of event 'cycles:Pu', 1500 Hz, Event count (approx.): 14034455489                                                                                                       
            matrixMultiplyLoopInterchangedTiling(double const*, double const*, double*, int, int)  /mnt/d/open_source/matmul_challenge/loop_tiling_interchanged_O2 [Percent: local period]      
@@ -276,4 +284,22 @@ This section presents benchmark results, assembly analysis, and performance insi
              1.63 │     ↑ jne          230                                                                                                                                                     
                   │       mov          -0x1c(%rsp),%edx
           ```
+
+## Observations
+
+- The table below presents the percentage decrease in CPU time(or performance gain) taking naive.cpp with non-vectorized compiler optimization as the baseline:
+
+  | Program                        | Compiler Optimization | Performance Gain |
+  |--------------------------------|-----------------------|------------------|
+  | `naive.cpp`                    | `Non-vectorized`      | _                |
+  | `naive.cpp`                    | `Vectorized`          | 4%  to 8.5%      |
+  | `naive_interchanged.cpp`       | `Non-vectorized`      | 45% to 87%       |
+  | `naive_interchanged.cpp`       | `Vectorized`          | 83% to 94%       |
+  | `loop_tiling.cpp`              | `Non-vectorized`      | 72% to 93.6%     |
+  | `loop_tiling.cpp`              | `Vectorized`          | 72% to 93.6%     |
+  | `loop_tiling_interchanged.cpp` | `Non-vectorized`      | 78% to 95%       |
+  | `loop_tiling_interchanged.cpp` | `Vectorized`          | 91% to 97.5%     |
+- We observe different assembly code for non-vectorized and vectorized programs when the `ikj` loop order is used. However, both produce the same assembly code when using the `ijk` loop order.
+- As observed from the assembly code of each program, the majority of the time is spent in the instructions within the loop.
+- The perf tool helped me identify an inefficient matrix C initialization in my programs which was adding unnecessary noise in the benchmark results. I fixed this in Commit [560b558](https://github.com/Aadarsh-Keshri/MatMul_Challenge/commit/560b5585904655427e8e570ce5124e4df2caf546).
 
